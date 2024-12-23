@@ -109,7 +109,7 @@ await use_mcp_tool({
 
 ### Output Directory
 
-You can configure the output directory in your MCP settings file. If not configured, it will save files to $HOME:
+You can configure the output directory in your MCP settings file for apps that use MCP such as Cline or Claude. If not configured, it will save files to $HOME:
 
 ```json
 {
@@ -132,7 +132,7 @@ The tool automatically handles file name conflicts by appending incremental numb
 - [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/sdk) - MCP SDK for server implementation
 - [remarkable](https://github.com/jonschlinkert/remarkable) - Markdown parser
 - [highlight.js](https://github.com/highlightjs/highlight.js) - Syntax highlighting
-- [puppeteer](https://github.com/puppeteer/puppeteer) - Modern PDF generation using Chrome (v131.0.6778.204)
+- [puppeteer](https://github.com/puppeteer/puppeteer) - Modern PDF generation using [Chrome for Testing](https://developer.chrome.com/blog/chrome-for-testing/) (v131.0.6778.204)
 
 ## Chrome Version
 
