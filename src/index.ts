@@ -28,7 +28,7 @@ class MarkdownPdfServer {
     this.server = new Server(
       {
         name: 'markdown2pdf',
-        version: '1.2.3',
+        version: '1.2.5',
       },
       {
         capabilities: {
@@ -61,9 +61,9 @@ class MarkdownPdfServer {
                 type: 'string',
                 description: 'Markdown content to convert to PDF',
               },
-              outputPath: {
+              outputFilename: {
                 type: 'string',
-                description: 'Path where the PDF should be saved. Can be relative (resolved from current working directory) or absolute path. If not provided, defaults to ~/Documents/markdown2pdf/output.pdf. Directory will be created if it doesn\'t exist',
+                description: 'The filename of the PDF file to be saved (e.g. "output.pdf"). The environmental variable M2P_OUTPUT_DIR sets the output path directory. If not provided, it will default to user\'s HOME directory.',
               },
               paperFormat: {
                 type: 'string',
@@ -98,23 +98,32 @@ class MarkdownPdfServer {
         );
       }
 
-      // Use HOME environment variable for default output path
-      const defaultOutputPath = process.env.M2P_DEFAULT_OUTPUT_PATH 
-        ? path.resolve(process.env.M2P_DEFAULT_OUTPUT_PATH)
-        : path.resolve(process.env.HOME || process.cwd(), 'Documents', 'markdown2pdf', 'output.pdf');
+      // Get output directory from environment variable or use default
+      const outputDir = process.env.M2P_OUTPUT_DIR 
+        ? path.resolve(process.env.M2P_OUTPUT_DIR)
+        : path.resolve(process.env.HOME || process.cwd());
+
       const { 
         markdown, 
-        outputPath = defaultOutputPath,
+        outputFilename = 'output.pdf',
         paperFormat = 'letter',
         paperOrientation = 'portrait',
         paperBorder = '2cm'
       } = request.params.arguments as {
         markdown: string;
-        outputPath?: string;
+        outputFilename?: string;
         paperFormat?: string;
         paperOrientation?: string;
         paperBorder?: string;
       };
+
+      // Ensure output filename has .pdf extension
+      const filename = outputFilename.toLowerCase().endsWith('.pdf') 
+        ? outputFilename 
+        : `${outputFilename}.pdf`;
+
+      // Combine output directory with filename
+      const outputPath = path.join(outputDir, filename);
 
       try {
         await this.convertToPdf(
@@ -124,11 +133,13 @@ class MarkdownPdfServer {
           paperOrientation,
           paperBorder
         );
+        // Ensure absolute path is returned
+        const absolutePath = path.resolve(outputPath);
         return {
           content: [
             {
               type: 'text',
-              text: `Successfully created PDF at ${outputPath}`,
+              text: `Successfully created PDF at: ${absolutePath}`,
             },
           ],
         };

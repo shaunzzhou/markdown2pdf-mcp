@@ -111,7 +111,7 @@ You can configure the default output path in your MCP settings file:
       "command": "node",
       "args": ["path/to/markdown2pdf-mcp/build/index.js"],
       "env": {
-        "M2P_DEFAULT_OUTPUT_PATH": "/path/to/default/output.pdf"
+        "M2P_OUTPUT_DIR": "/path/to/default/output.pdf"
       }
     }
   }
