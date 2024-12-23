@@ -1,0 +1,24 @@
+{
+  "name": "markdown2pdf-mcp",
+  "version": "1.2.3",
+  "description": "MCP server for converting markdown to PDF",
+  "type": "module",
+  "main": "build/index.js",
+  "scripts": {
+    "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\" && npm run copy-assets",
+    "copy-assets": "mkdir -p build/css build/phantom && cp src/css/pdf.css build/css/ && cp src/phantom/render.js build/phantom/ && cp src/runnings.js build/",
+    "start": "node build/index.js"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.0.4",
+    "highlight.js": "^10.7.3",
+    "phantomjs-prebuilt": "^2.1.16",
+    "remarkable": "^2.0.1",
+    "tmp": "^0.2.1"
+  },
+  "devDependencies": {
+    "@types/node": "^16.11.7",
+    "@types/tmp": "^0.2.3",
+    "typescript": "^4.5.2"
+  }
+}
