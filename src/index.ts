@@ -14,7 +14,6 @@ import { Remarkable } from 'remarkable';
 import hljs from 'highlight.js';
 import tmp from 'tmp';
 import { spawn } from 'child_process';
-import phantomjs from 'phantomjs-prebuilt';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -28,7 +27,7 @@ class MarkdownPdfServer {
     this.server = new Server(
       {
         name: 'markdown2pdf',
-        version: '1.2.5',
+        version: '2.0.0',
       },
       {
         capabilities: {
@@ -82,9 +81,15 @@ class MarkdownPdfServer {
                 description: 'Border margin for the PDF (default: 2cm). Use CSS units (cm, mm, in, px)',
                 pattern: '^[0-9]+(\.[0-9]+)?(cm|mm|in|px)$',
                 default: '20mm'
+              },
+              watermark: {
+                type: 'string',
+                description: 'Optional watermark text (max 15 characters, uppercase), e.g. "DRAFT", "PRELIMINARY", "CONFIDENTIAL", "FOR REVIEW", etc',
+                maxLength: 15,
+                pattern: '^[A-Z0-9\\s-]+$'
               }
             },
-            required: ['markdown'],
+            required: ['markdown']
           },
         },
       ],
@@ -108,13 +113,15 @@ class MarkdownPdfServer {
         outputFilename = 'output.pdf',
         paperFormat = 'letter',
         paperOrientation = 'portrait',
-        paperBorder = '2cm'
+        paperBorder = '2cm',
+        watermark = ''
       } = request.params.arguments as {
         markdown: string;
         outputFilename?: string;
         paperFormat?: string;
         paperOrientation?: string;
         paperBorder?: string;
+        watermark?: string;
       };
 
       // Ensure output filename has .pdf extension
@@ -131,7 +138,8 @@ class MarkdownPdfServer {
           outputPath,
           paperFormat,
           paperOrientation,
-          paperBorder
+          paperBorder,
+          watermark
         );
         // Ensure absolute path is returned
         const absolutePath = path.resolve(outputPath);
@@ -178,7 +186,8 @@ class MarkdownPdfServer {
     outputPath: string,
     paperFormat: string = 'letter',
     paperOrientation: string = 'portrait',
-    paperBorder: string = '2cm'
+    paperBorder: string = '2cm',
+    watermark: string = ''
   ): Promise<void> {
     return new Promise((resolve, reject) => {
       // Get incremental path if file exists
@@ -192,14 +201,13 @@ class MarkdownPdfServer {
       fs.mkdirSync(outputDir, { recursive: true });
       
       const opts = {
-        phantomPath: phantomjs.path,
         runningsPath: path.resolve(__dirname, 'runnings.js'),
         cssPath: path.resolve(__dirname, 'css', 'pdf.css'),
         paperFormat,
         paperOrientation,
         paperBorder,
-        renderDelay: 2000, // Increase render delay to ensure styles are loaded
-        loadTimeout: 30000, // Increase timeout for larger documents
+        renderDelay: 5000, // Increased render delay for complex documents
+        loadTimeout: 60000, // Increased timeout for larger documents with external resources
         remarkable: { breaks: true, preset: 'default' as const },
       };
 
@@ -219,7 +227,50 @@ class MarkdownPdfServer {
         ...opts.remarkable,
       });
 
-      const html = mdParser.render(markdown);
+      // Wrap the markdown HTML with the watermark and sizing script
+      const html = `
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <style>
+    @page {
+      margin: 20px;
+      size: ${paperFormat} ${paperOrientation};
+    }
+    html, body {
+      margin: 0;
+      padding: 20px;
+      height: 100%;
+    }
+    .content {
+      position: relative;
+      z-index: 1;
+    }
+    .watermark {
+      position: fixed;
+      left: 0;
+      right: 0;
+      top: calc(50% - 20px); /* Adjust for body padding */
+      text-align: center;
+      transform: rotate(-45deg);
+      font-size: calc((8.5in - 40mm) * 0.16875);
+      color: rgba(0, 0, 0, 0.15);
+      font-family: Arial, sans-serif;
+      white-space: nowrap;
+      pointer-events: none;
+      z-index: 0;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  ${watermark ? `<div class="watermark">${watermark}</div>` : ''}
+  <div class="content">
+    ${mdParser.render(markdown)}
+  </div>
+</body>
+</html>`;
 
       // Create temporary HTML file
       tmp.file({ postfix: '.html' }, async (err, tmpHtmlPath, tmpHtmlFd) => {
@@ -230,43 +281,21 @@ class MarkdownPdfServer {
           // Write HTML content to temporary file
           await fs.promises.writeFile(tmpHtmlPath, html);
 
-          const childArgs = [
-            path.resolve(__dirname, 'phantom', 'render.js'),
-            path.resolve(tmpHtmlPath),
-            outputPath,
-            path.resolve(process.cwd()),
-            opts.runningsPath,
-            opts.cssPath,
-            '',
-            opts.paperFormat,
-            opts.paperOrientation,
-            opts.paperBorder,
-            String(opts.renderDelay),
-            String(opts.loadTimeout),
-          ];
-
-          const phantom = spawn(opts.phantomPath, childArgs);
-
-          phantom.stdout.on('data', (data) => {
-            console.error(`PhantomJS stdout: ${data}`);
+          // Import and use the Puppeteer renderer
+          const renderPDF = (await import('./puppeteer/render.js')).default;
+          await renderPDF({
+            htmlPath: tmpHtmlPath,
+            pdfPath: outputPath,
+            runningsPath: opts.runningsPath,
+            cssPath: opts.cssPath,
+            highlightCssPath: '',
+            paperFormat: opts.paperFormat,
+            paperOrientation: opts.paperOrientation,
+            paperBorder: opts.paperBorder,
+            renderDelay: opts.renderDelay,
+            loadTimeout: opts.loadTimeout
           });
-
-          phantom.stderr.on('data', (data) => {
-            console.error(`PhantomJS stderr: ${data}`);
-          });
-
-          phantom.on('error', (err) => {
-            console.error(`PhantomJS spawn error: ${err}`);
-            reject(err);
-          });
-
-          phantom.on('close', (code: number) => {
-            if (code !== 0) {
-              reject(new Error(`PhantomJS process exited with code ${code}`));
-            } else {
-              resolve();
-            }
-          });
+          resolve();
         } catch (error) {
           reject(error);
         }

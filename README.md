@@ -8,6 +8,9 @@ An MCP server for converting Markdown documents to PDF files. This server provid
 - Syntax highlighting for code blocks
 - Custom CSS styling for PDF output
 - Support for standard Markdown formatting
+- Modern PDF generation using Chrome's rendering engine
+- Excellent support for modern web features and fonts
+- Reliable resource loading and rendering
 
 ## Limitations
 
@@ -62,10 +65,11 @@ The server provides a single tool `create_pdf_from_markdown` with the following 
   markdown: string;    // Markdown content to convert
 
   // Optional parameters with defaults
-  outputPath?: string;  // Path where the PDF should be saved (defaults to MCP settings DEFAULT_OUTPUT_PATH)
+  outputFilename?: string;  // Filename for the PDF (e.g., "output.pdf")
   paperFormat?: string;     // 'letter' (default), 'a4', 'a3', 'a5', 'legal', 'tabloid'
   paperOrientation?: string; // 'portrait' (default), 'landscape'
   paperBorder?: string;     // '2cm' (default), accepts decimal values with CSS units (e.g., '1.5cm', '2.5mm', '0.5in', '10.5px')
+  watermark?: string;       // Optional watermark text (max 15 characters, uppercase)
 }
 ```
 
@@ -77,15 +81,16 @@ await use_mcp_tool({
   tool_name: "create_pdf_from_markdown",
   arguments: {
     markdown: "# Hello World\n\nThis is a test document.",
-    outputPath: "output.pdf",
+    outputFilename: "output.pdf",
     paperFormat: "a4",
     paperOrientation: "landscape",
     paperBorder: "1.5cm",
+    watermark: "DRAFT",
   },
 });
 ```
 
-Example usage in an MCP client:
+Example minimal usage:
 
 ```typescript
 await use_mcp_tool({
@@ -100,9 +105,9 @@ await use_mcp_tool({
 
 ## Configuration
 
-### Default Output Path
+### Output Directory
 
-You can configure the default absolute output path in your MCP settings file. If it doesn't exist, it will save the file to $HOME:
+You can configure the output directory in your MCP settings file. If not configured, it will save files to $HOME:
 
 ```json
 {
@@ -111,21 +116,21 @@ You can configure the default absolute output path in your MCP settings file. If
       "command": "node",
       "args": ["path/to/markdown2pdf-mcp/build/index.js"],
       "env": {
-        "M2P_OUTPUT_DIR": "/path/to/default"
+        "M2P_OUTPUT_DIR": "/path/to/output/directory"
       }
     }
   }
 }
 ```
 
-If no output path is provided in the tool arguments, it will use the configured default path. The tool also automatically handles file name conflicts by appending incremental numbers (e.g., output.pdf, output-1.pdf, output-2.pdf).
+The tool automatically handles file name conflicts by appending incremental numbers (e.g., output.pdf, output-1.pdf, output-2.pdf).
 
 ## Dependencies
 
 - [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/sdk) - MCP SDK for server implementation
 - [remarkable](https://github.com/jonschlinkert/remarkable) - Markdown parser
 - [highlight.js](https://github.com/highlightjs/highlight.js) - Syntax highlighting
-- [phantomjs-prebuilt](https://github.com/Medium/phantomjs) - PDF generation
+- [puppeteer](https://github.com/puppeteer/puppeteer) - Modern PDF generation using Chrome
 - [tmp](https://github.com/raszi/node-tmp) - Temporary file handling
 
 ## Development

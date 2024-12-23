@@ -1,3 +1,19 @@
+.watermark {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  color: rgba(128, 128, 128, 0.25);
+  /* Simpler transform for better compatibility */
+  -webkit-transform-origin: center;
+  transform-origin: center;
+  -webkit-transform: translate(-50%, -50%) rotate(-45deg);
+  transform: translate(-50%, -50%) rotate(-45deg);
+  white-space: nowrap;
+  pointer-events: none;
+  user-select: none;
+  z-index: 1000;
+}
+
 body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   font-size: 12px;

@@ -5,6 +5,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.0] - 2024-12-23
+
+### Changed
+
+- Migrated from PhantomJS to Puppeteer for PDF generation
+- Improved rendering quality and CSS support
+- Enhanced header/footer handling
+- Better support for modern web features and fonts
+- More reliable resource loading
+- Improved error handling and memory management
+
+### Added
+
+- TypeScript type definitions for better type safety
+- Modern async/await patterns
+- Better security through regular Chrome updates
+
+### Removed
+
+- PhantomJS dependency and related implementation
+
+## [1.3.0] - 2024-12-23
+
+### Added
+
+- Optional watermark parameter with validation (max 15 characters, alphanumeric with spaces and hyphens)
+- Dynamic watermark sizing based on page dimensions
+
+### Changed
+
+- Optimized watermark size calculation for better visual balance
+- Improved watermark positioning and rotation handling in PhantomJS
+- Increased timeout values for better handling of complex documents
+- Enhanced error handling for external resources and complex content
+
+### Fixed
+
+- Watermark sizing issues with different content lengths
+
 ## [1.2.5] - 2024-12-23
 
 ### Changed
