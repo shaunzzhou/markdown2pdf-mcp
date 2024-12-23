@@ -93,7 +93,7 @@ await use_mcp_tool({
   tool_name: "create_pdf_from_markdown",
   arguments: {
     markdown: "# Hello World\n\nThis is a test document.",
-    outputPath: "output.pdf",
+    outputFilename: "output.pdf",
   },
 });
 ```
@@ -102,7 +102,7 @@ await use_mcp_tool({
 
 ### Default Output Path
 
-You can configure the default output path in your MCP settings file:
+You can configure the default absolute output path in your MCP settings file. If it doesn't exist, it will save the file to $HOME:
 
 ```json
 {
@@ -111,7 +111,7 @@ You can configure the default output path in your MCP settings file:
       "command": "node",
       "args": ["path/to/markdown2pdf-mcp/build/index.js"],
       "env": {
-        "M2P_OUTPUT_DIR": "/path/to/default/output.pdf"
+        "M2P_OUTPUT_DIR": "/path/to/default"
       }
     }
   }
