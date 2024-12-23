@@ -2,6 +2,7 @@ export default {
   header: (watermarkText) => `
     <style>
       .watermark-header {
+        font-family: san-serif;
         width: 100%;
         font-size: 24px;
         color: rgba(0,0,0,0.1);
@@ -18,6 +19,7 @@ export default {
   footer: (watermarkText) => `
     <style>
       .watermark-footer {
+        font-family: san-serif;
         width: 100%;
         font-size: 24px;
         color: rgba(0,0,0,0.1);
