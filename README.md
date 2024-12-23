@@ -1,6 +1,8 @@
 # Markdown2PDF MCP Server (markdown2pdf-mcp)
 
-An MCP server for converting Markdown documents to PDF files. This server provides a simple and efficient way to generate PDFs from Markdown content with support for syntax highlighting and custom styling. Inspired by Alan Shaw's [markdown-pdf](https://github.com/alanshaw/markdown-pdf).
+An MCP server for converting Markdown documents to PDF files. This server provides a simple and efficient way to generate PDFs from Markdown content with support for syntax highlighting and custom styling. Also allows for watermarking on page 1.
+
+Inspired by Alan Shaw's [markdown-pdf](https://github.com/alanshaw/markdown-pdf).
 
 ## Features
 
