@@ -240,34 +240,47 @@ class MarkdownPdfServer {
     }
     html, body {
       margin: 0;
-      padding: 20px;
+      padding: 0;
+      width: 100%;
       height: 100%;
+    }
+    .page {
+      position: relative;
+      width: ${paperFormat === 'letter' ? '8.5in' : '210mm'};
+      height: ${paperFormat === 'letter' ? '11in' : '297mm'};
+      margin: 0;
+      padding: 20px;
+      box-sizing: border-box;
     }
     .content {
       position: relative;
       z-index: 1;
     }
     .watermark {
-      position: fixed;
+      position: absolute;
       left: 0;
+      top: 0;
       right: 0;
-      top: calc(50% - 20px); /* Adjust for body padding */
-      text-align: center;
-      transform: rotate(-45deg);
-      font-size: calc((8.5in - 40mm) * 0.16875);
+      bottom: 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: calc(${paperFormat === 'letter' ? '8.5in' : '210mm'} * 0.14);
       color: rgba(0, 0, 0, 0.15);
       font-family: Arial, sans-serif;
       white-space: nowrap;
       pointer-events: none;
       z-index: 0;
-      margin: 0;
+      transform: rotate(-45deg);
     }
   </style>
 </head>
 <body>
-  ${watermark ? `<div class="watermark">${watermark}</div>` : ''}
-  <div class="content">
-    ${mdParser.render(markdown)}
+  <div class="page">
+    <div class="content">
+      ${mdParser.render(markdown)}
+    </div>
+    ${watermark ? `<div class="watermark">${watermark}</div>` : ''}
   </div>
 </body>
 </html>`;

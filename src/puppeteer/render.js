@@ -14,7 +14,9 @@ async function renderPDF({
   loadTimeout
 }) {
   const browser = await puppeteer.launch({
-    headless: 'new'
+    headless: true,
+    executablePath: '/Users/ianashen/.cache/puppeteer/chrome/mac_arm-131.0.6778.204/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing',
+    product: 'chrome'
   });
   
   try {
@@ -59,6 +61,12 @@ async function renderPDF({
       return document.body.offsetHeight;
     });
 
+    // Get watermark text if present
+    const watermarkText = await page.evaluate(() => {
+      const watermark = document.querySelector('.watermark');
+      return watermark ? watermark.textContent : '';
+    });
+
     // Generate PDF
     await page.pdf({
       path: pdfPath,
@@ -71,9 +79,9 @@ async function renderPDF({
         left: paperBorder
       },
       printBackground: true,
-      displayHeaderFooter: true,
-      headerTemplate: runnings.default.header || '',
-      footerTemplate: runnings.default.footer || '',
+      displayHeaderFooter: !!watermarkText,
+      headerTemplate: watermarkText ? runnings.default.header(watermarkText) : '',
+      footerTemplate: watermarkText ? runnings.default.footer(watermarkText) : '',
       preferCSSPageSize: true
     });
 

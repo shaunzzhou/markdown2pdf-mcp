@@ -5,6 +5,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.1] - 2024-12-23
+
+### Changed
+
+- Pinned Chrome version to 131.0.6778.204 for consistent PDF generation; Claude requires it hardcoded.
+- Updated Puppeteer configuration to use new headless mode
+
 ## [2.0.0] - 2024-12-23
 
 ### Changed

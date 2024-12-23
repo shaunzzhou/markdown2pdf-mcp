@@ -130,7 +130,12 @@ The tool automatically handles file name conflicts by appending incremental numb
 - [@modelcontextprotocol/sdk](https://github.com/modelcontextprotocol/sdk) - MCP SDK for server implementation
 - [remarkable](https://github.com/jonschlinkert/remarkable) - Markdown parser
 - [highlight.js](https://github.com/highlightjs/highlight.js) - Syntax highlighting
-- [puppeteer](https://github.com/puppeteer/puppeteer) - Modern PDF generation using Chrome
+- [puppeteer](https://github.com/puppeteer/puppeteer) - Modern PDF generation using Chrome (v131.0.6778.204)
+
+## Chrome Version
+
+This package uses Chrome v131.0.6778.204 for consistent PDF generation across all installations. This version is automatically installed when you run `npm install`.
+
 - [tmp](https://github.com/raszi/node-tmp) - Temporary file handling
 
 ## Development
