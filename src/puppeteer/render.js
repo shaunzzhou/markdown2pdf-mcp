@@ -1,5 +1,27 @@
 import puppeteer from 'puppeteer';
 import { fileURLToPath } from 'url';
+import path from 'path';
+import os from 'os';
+
+const CHROME_VERSION = '131.0.6778.204';
+
+function getPlatformPath() {
+  const platform = process.platform;
+  const arch = os.arch();
+  
+  if (platform === 'darwin') {
+    return arch === 'arm64' 
+      ? `mac_arm-${CHROME_VERSION}/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing`
+      : `mac-${CHROME_VERSION}/chrome-mac/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing`;
+  }
+  if (platform === 'linux') {
+    return `linux-${CHROME_VERSION}/chrome-linux/chrome`;
+  }
+  if (platform === 'win32') {
+    return `win64-${CHROME_VERSION}/chrome-win/chrome.exe`;
+  }
+  throw new Error(`Unsupported platform: ${platform}`);
+}
 
 async function renderPDF({
   htmlPath,
@@ -13,11 +35,27 @@ async function renderPDF({
   renderDelay,
   loadTimeout
 }) {
-  const browser = await puppeteer.launch({
-    headless: true,
-    executablePath: '/Users/ianashen/.cache/puppeteer/chrome/mac_arm-131.0.6778.204/chrome-mac-arm64/Google Chrome for Testing.app/Contents/MacOS/Google Chrome for Testing',
-    product: 'chrome'
-  });
+  let browser;
+  try {
+    // Try with our specific Chrome version first
+    browser = await puppeteer.launch({
+      headless: true,
+      executablePath: path.join(
+        os.homedir(),
+        '.cache',
+        'puppeteer',
+        'chrome',
+        getPlatformPath()
+      ),
+      product: 'chrome'
+    });
+  } catch (err) {
+    // Fall back to default Puppeteer-installed Chrome
+    browser = await puppeteer.launch({
+      headless: true,
+      product: 'chrome'
+    });
+  }
   
   try {
     const page = await browser.newPage();
