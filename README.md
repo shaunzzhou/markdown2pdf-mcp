@@ -152,7 +152,7 @@ npm start
 
 ## License
 
-MIT @ Ian Shen
+MIT
 
 ## Contributing
 
