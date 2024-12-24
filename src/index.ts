@@ -6,6 +6,7 @@ import {
   ErrorCode,
   ListToolsRequestSchema,
   McpError,
+  Request,
 } from '@modelcontextprotocol/sdk/types.js';
 import fs from 'fs';
 import path from 'path';
@@ -27,7 +28,7 @@ class MarkdownPdfServer {
     this.server = new Server(
       {
         name: 'markdown2pdf',
-        version: '2.0.0',
+        version: '2.0.2',
       },
       {
         capabilities: {
@@ -40,7 +41,7 @@ class MarkdownPdfServer {
 
     this.setupToolHandlers();
     
-    this.server.onerror = (error) => console.error('[MCP Error]', error);
+    this.server.onerror = (error: Error) => console.error('[MCP Error]', error);
     process.on('SIGINT', async () => {
       await this.server.close();
       process.exit(0);
