@@ -97,7 +97,7 @@ export class MarkdownPdfServer {
       tools: [
         {
           name: 'create_pdf_from_markdown',
-          description: 'Convert markdown content to PDF. Note: Cannot handle LaTeX math equations. Supports basic markdown elements like headers, lists, tables, code blocks, blockquotes, and images (both local and external URLs).',
+          description: 'Convert markdown content to PDF. Supports basic markdown elements like headers, lists, tables, code blocks, blockquotes, images (both local and external URLs), and Mermaid diagrams. Note: Cannot handle LaTeX math equations. Mermaid syntax errors will be displayed directly in the PDF output.',
           inputSchema: {
             type: 'object',
             properties: {
