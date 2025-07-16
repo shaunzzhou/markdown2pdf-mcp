@@ -57,7 +57,7 @@ graph TD;
 
 If there is a syntax error in your diagram, the error message will be rendered in the PDF, helping you to debug it.
 
-## Installation
+## Installation (from source)
 
 ```bash
 # Clone the repository
@@ -71,6 +71,12 @@ npm install
 
 # Build the project
 npm run build
+```
+
+## Installation (via npm)
+
+```bash
+npm install markdown2pdf-mcp
 ```
 
 ## Usage
