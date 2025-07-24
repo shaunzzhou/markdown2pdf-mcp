@@ -4,6 +4,9 @@ import path from 'path';
 import os from 'os';
 import fs from 'fs';
 
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const CHROME_VERSION = '131.0.6778.204';
 
 function getPlatformPath() {
@@ -83,21 +86,38 @@ async function renderPDF({
       throw new Error(`Failed to load HTML content: ${err.message}`);
     });
 
-    // Import runnings (header/footer)
-    const runnings = await import(runningsPath).catch(err => {
-      throw new Error(`Failed to import runnings.js: ${err.message}`);
-    });
+    // Import runnings (header/footer) - use relative path if runningsPath not provided
+    let runnings;
+    try {
+      if (runningsPath) {
+        runnings = await import(runningsPath);
+      } else {
+        // Use relative import to find runnings.js in the build directory
+        runnings = await import('../runnings.js');
+      }
+    } catch (err) {
+      console.warn(`Could not import runnings.js: ${err.message}. Headers/footers will be disabled.`);
+      runnings = null;
+    }
 
     // Add CSS if provided
     if (cssPath && fs.existsSync(cssPath)) {
       await page.addStyleTag({ path: cssPath }).catch(err => {
-        throw new Error(`Failed to add CSS: ${err.message}`);
+        console.warn(`Failed to add CSS: ${err.message}`);
       });
+    } else {
+      // Try to find CSS file relative to current location
+      const defaultCssPath = path.resolve(__dirname, '../css/pdf.css');
+      if (fs.existsSync(defaultCssPath)) {
+        await page.addStyleTag({ path: defaultCssPath }).catch(err => {
+          console.warn(`Failed to add default CSS: ${err.message}`);
+        });
+      }
     }
     
     if (highlightCssPath && fs.existsSync(highlightCssPath)) {
       await page.addStyleTag({ path: highlightCssPath }).catch(err => {
-        throw new Error(`Failed to add highlight CSS: ${err.message}`);
+        console.warn(`Failed to add highlight CSS: ${err.message}`);
       });
     }
 
@@ -138,9 +158,9 @@ async function renderPDF({
         left: paperBorder
       },
       printBackground: true,
-      displayHeaderFooter: !!watermarkText,
-      headerTemplate: watermarkText ? runnings.default.header(watermarkText) : '',
-      footerTemplate: watermarkText ? runnings.default.footer(watermarkText) : '',
+      displayHeaderFooter: !!(watermarkText && runnings),
+      headerTemplate: (watermarkText && runnings) ? runnings.default.header(watermarkText) : '',
+      footerTemplate: (watermarkText && runnings) ? runnings.default.footer(watermarkText) : '',
       preferCSSPageSize: true
     });
 

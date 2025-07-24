@@ -30,13 +30,14 @@
   },
   "scripts": {
     "build": "tsc && node -e \"require('fs').chmodSync('build/index.js', '755')\" && npm run copy-assets",
-    "copy-assets": "mkdir -p build/css build/puppeteer && cp src/css/pdf.css build/css/ && cp src/puppeteer/render.js build/puppeteer/ && cp src/runnings.js build/",
+    "copy-assets": "node -e \"const fs=require('fs');const path=require('path');['build/css','build/puppeteer'].forEach(d=>fs.mkdirSync(d,{recursive:true}));[['src/css/pdf.css','build/css/pdf.css'],['src/puppeteer/render.js','build/puppeteer/render.js'],['src/runnings.js','build/runnings.js']].forEach(([src,dst])=>fs.copyFileSync(src,dst))\"",
     "start": "node build/index.js",
     "test": "node --experimental-vm-modules node_modules/jest/bin/jest.js"
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.0.4",
     "highlight.js": "^10.7.3",
+    "markdown2pdf-mcp": "^2.1.0",
     "puppeteer": "23.11.1",
     "remarkable": "^2.0.1",
     "tmp": "^0.2.1"

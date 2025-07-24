@@ -5,8 +5,8 @@ import os from 'os';
 import tmp from 'tmp';
 
 async function test() {
-  const outputDir = os.tmpdir();
-  const outputPath = path.join(outputDir, 'test.pdf');
+  const outputDir = 'C:\\Users\\AA\\Documents\\GitHub\\markdown2pdf-mcp\\output';
+  const outputPath = path.join(outputDir, 'testing.pdf');
   
   console.log('Creating temporary HTML file...');
   tmp.file({ postfix: '.html' }, async (err, tmpHtmlPath, tmpHtmlFd) => {

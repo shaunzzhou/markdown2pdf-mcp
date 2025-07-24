@@ -405,13 +405,17 @@ export class MarkdownPdfServer {
         // Write HTML content
         await fs.promises.writeFile(tmpFile.path, html);
 
+        // Convert paths to proper file URLs for Windows
+        const runningsPath = path.resolve(__dirname, 'runnings.js');
+        const cssPath = path.resolve(__dirname, 'css', 'pdf.css');
+
         // Import and use Puppeteer renderer
         const renderPDF = (await import('./puppeteer/render.js')).default;
         await renderPDF({
           htmlPath: tmpFile.path,
           pdfPath: outputPath,
-          runningsPath: path.resolve(__dirname, 'runnings.js'),
-          cssPath: path.resolve(__dirname, 'css', 'pdf.css'),
+          runningsPath,
+          cssPath,
           highlightCssPath: '',
           paperFormat,
           paperOrientation,
